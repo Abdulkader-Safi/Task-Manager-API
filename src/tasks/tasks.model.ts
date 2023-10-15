@@ -2,7 +2,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: TaskStatus.OPEN;
+  status: TaskStatus;
 }
 
 export enum TaskStatus {
