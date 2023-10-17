@@ -4,7 +4,6 @@ import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
-    TasksModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -13,7 +12,9 @@ import { TasksModule } from './tasks/tasks.module';
       password: 'Safi@2020',
       autoLoadEntities: true,
       synchronize: true,
+      entities: ['dist/**/*.entity.js'],
     }),
+    TasksModule,
   ],
 })
 export class AppModule {}

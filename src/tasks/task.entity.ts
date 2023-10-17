@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { TaskStatus } from './tasks.model';
+import { TaskStatus } from './task-status.model';
 
 @Entity()
 export class Task {
