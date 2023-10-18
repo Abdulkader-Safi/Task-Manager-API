@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { log } from 'console';
 import { Users } from 'src/auth/users.entity';
@@ -10,6 +15,8 @@ import { TaskRepository } from './tasks.repository';
 
 @Injectable()
 export class TasksService {
+  private logger = new Logger('TasksService', { timestamp: true });
+
   constructor(
     @InjectRepository(Tasks) private taskRepository: TaskRepository,
   ) {}
@@ -29,13 +36,22 @@ export class TasksService {
         { search: `%${search}%` },
       );
     }
-
-    const tasks = await query.getMany();
-    return tasks;
+    try {
+      const tasks = await query.getMany();
+      return tasks;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get tasks for user ${
+          user.username
+        }. Filters: ${JSON.stringify(filterDto)}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 
   async getTaskById(id: string, user: Users): Promise<Tasks> {
-    // TODO: Not working
+    // FIXME: Not working
     const found = await this.taskRepository.findOne({
       where: {
         id: id,
@@ -46,6 +62,9 @@ export class TasksService {
     log(found);
 
     if (!found) {
+      this.logger.error(
+        `Failed to get task for user ${user.username} with id {${id}}`,
+      );
       throw new NotFoundException(`Task with ID "${id}" not found`);
     }
 
@@ -73,10 +92,18 @@ export class TasksService {
   ): Promise<Tasks> {
     const task = await this.getTaskById(id, user);
 
-    task.status = status;
-    await this.taskRepository.save(task);
+    try {
+      task.status = status;
+      await this.taskRepository.save(task);
 
-    return task;
+      return task;
+    } catch (error) {
+      this.logger.error(
+        `Failed to update task {${id}} by user ${user.username} `,
+        error.stack,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 
   async deleteTask(id: string, user: Users): Promise<void> {
@@ -86,6 +113,9 @@ export class TasksService {
     });
 
     if (result.affected === 0) {
+      this.logger.error(
+        `Failed to delete task {${id}} by user ${user.username}. Task Not found.`,
+      );
       throw new NotFoundException(`Task with id:{${id}} not found`);
     }
   }

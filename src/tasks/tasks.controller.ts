@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -21,6 +22,8 @@ import { TasksService } from './tasks.service';
 @Controller('tasks')
 @UseGuards(AuthGuard('jwt'))
 export class TasksController {
+  private logger = new Logger('TasksController', { timestamp: true });
+
   constructor(private tasksService: TasksService) {}
 
   @Get()
@@ -28,11 +31,17 @@ export class TasksController {
     @Query() filterDto: GetTaskFilterDto,
     @GetUser() user: Users,
   ): Promise<Tasks[]> {
+    this.logger.verbose(
+      `User {${user.username}} retrieving all tasks. Filter: ${JSON.stringify(
+        filterDto,
+      )}`,
+    );
     return this.tasksService.getTasks(filterDto, user);
   }
 
   @Get('/:id')
   getTaskById(@Param('id') id: string, @GetUser() user: Users): Promise<Tasks> {
+    this.logger.verbose(`User {${user.username}} searched for task {${id}}`);
     return this.tasksService.getTaskById(id, user);
   }
 
@@ -41,6 +50,7 @@ export class TasksController {
     @Body() createTaskDto: CreateTaskDto,
     @GetUser() user: Users,
   ): Promise<Tasks> {
+    this.logger.verbose(`User {${user.username}} created new task`);
     return this.tasksService.createTask(createTaskDto, user);
   }
 
@@ -50,11 +60,17 @@ export class TasksController {
     @Body('status') status: TaskStatus,
     @GetUser() user: Users,
   ): Promise<Tasks> {
+    this.logger.verbose(
+      `User {${user.username}} updated task with id: {${id}}`,
+    );
     return this.tasksService.updateTaskStatus(id, status, user);
   }
 
   @Delete('/:id')
   deleteTask(@Param('id') id: string, @GetUser() user: Users): Promise<void> {
+    this.logger.verbose(
+      `User {${user.username}} deleted task with id: {${id}}`,
+    );
     return this.tasksService.deleteTask(id, user);
   }
 }
