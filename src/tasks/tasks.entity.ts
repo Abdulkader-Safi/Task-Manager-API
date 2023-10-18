@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Users } from 'src/auth/users.entity';
 import {
   Column,
@@ -25,6 +26,7 @@ export class Tasks {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ManyToOne((_type) => Users, (user) => user.tasks, { eager: false })
+  @Exclude({ toPlainOnly: true })
   user: Users;
 
   @CreateDateColumn()
