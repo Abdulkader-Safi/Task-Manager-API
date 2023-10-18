@@ -1,7 +1,9 @@
+import { Users } from 'src/auth/users.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -20,6 +22,10 @@ export class Tasks {
 
   @Column()
   status: TaskStatus;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToOne((_type) => Users, (user) => user.tasks, { eager: false })
+  user: Users;
 
   @CreateDateColumn()
   created_at: Date;

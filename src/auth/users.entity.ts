@@ -1,7 +1,9 @@
+import { Tasks } from 'src/tasks/tasks.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,6 +18,10 @@ export class Users {
 
   @Column()
   password: string;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @OneToMany((_type) => Tasks, (tasks) => tasks.user, { eager: true })
+  tasks: Tasks[];
 
   @CreateDateColumn()
   created_at: Date;
