@@ -1,5 +1,4 @@
 import { Exclude } from 'class-transformer';
-import { Users } from 'src/auth/users.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Users } from '../auth/users.entity';
 import { TaskStatus } from './task-status.model';
 
 @Entity()
