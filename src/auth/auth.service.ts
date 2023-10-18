@@ -4,10 +4,12 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { log } from 'console';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { JwtPayload } from './jwt-payload.interface';
 import { Users } from './users.entity';
 import { UsersRepository } from './users.repository';
 
@@ -15,6 +17,7 @@ import { UsersRepository } from './users.repository';
 export class AuthService {
   constructor(
     @InjectRepository(Users) private usersRepository: UsersRepository,
+    private jwtService: JwtService,
   ) {}
 
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
@@ -41,12 +44,16 @@ export class AuthService {
     }
   }
 
-  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+  async signIn(
+    authCredentialsDto: AuthCredentialsDto,
+  ): Promise<{ accessToken: string }> {
     const { username, password } = authCredentialsDto;
     const user = await this.usersRepository.findOneBy({ username });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      return 'password';
+      const payload: JwtPayload = { username };
+      const accessToken = await this.jwtService.sign(payload);
+      return { accessToken };
     } else {
       throw new UnauthorizedException('Please check your login credentials');
     }
