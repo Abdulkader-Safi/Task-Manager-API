@@ -5,21 +5,17 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TaskStatus } from './task-status.model';
 
 @Entity()
-export class Tasks {
+export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  title: string;
+  username: string;
 
   @Column()
-  description: string;
-
-  @Column()
-  status: TaskStatus;
+  password: string;
 
   @CreateDateColumn()
   created_at: Date;
